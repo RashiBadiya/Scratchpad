@@ -1,0 +1,233 @@
+.scratchpad {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  padding: 15px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .scratchpad {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+}
+
+.scratchpad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.scratchpad-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.practice-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.target-content {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.target-content .content {
+  font-size: 36px;
+  color: #2196F3;
+  display: block;
+  margin: 15px 0;
+  line-height: 1.4;
+}
+
+canvas {
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background: #f9f9f9;
+  cursor: crosshair;
+  touch-action: none;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.canvas-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.canvas-tools {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tool-button {
+  padding: 8px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.tool-button.active {
+  background: #2196F3;
+  color: white;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.button-container button {
+  min-width: 100px;
+  padding: 12px 16px;
+  font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .button-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 -15px -15px;
+  }
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #1976D2;
+}
+
+.exercise-controls {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercise-description {
+  padding: 10px;
+  background-color: #E3F2FD;
+  border-radius: 4px;
+  color: #1976D2;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.exercise-select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.feedback {
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.feedback.correct {
+  background-color: #E8F5E9;
+  color: #4CAF50;
+}
+
+.feedback.incorrect {
+  background-color: #FFEBEE;
+  color: #F44336;
+}
+
+.tips {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #E3F2FD;
+  border-radius: 4px;
+}
+
+.tips h3 {
+  color: #1976D2;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.tips li {
+  color: #555;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.feedback-message {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  margin-top: 10px;
+}
