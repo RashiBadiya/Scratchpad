@@ -64,31 +64,44 @@ const Scratchpad = ({ onClose }) => {
 
   const getCurrentContent = () => EXERCISES[exerciseType].content[currentIndex];
 
+  const getCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Handle both mouse and touch events
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
   const startDrawing = (e) => {
+    e.preventDefault(); // Prevent scrolling on touch devices
+    
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const coords = getCoordinates(e);
     
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(coords.x, coords.y);
     setIsDrawing(true);
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
+    e.preventDefault(); // Prevent scrolling on touch devices
     
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const coords = getCoordinates(e);
     
-    ctx.lineTo(x, y);
+    ctx.lineTo(coords.x, coords.y);
     ctx.stroke();
     
-    setStrokeData(prev => [...prev, { x, y }]);
+    setStrokeData(prev => [...prev, { x: coords.x, y: coords.y }]);
   };
 
   const stopDrawing = () => {
@@ -303,6 +316,20 @@ const Scratchpad = ({ onClose }) => {
           onMouseMove={draw}
           onMouseUp={stopDrawing}
           onMouseOut={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          onTouchCancel={stopDrawing}
+          style={{
+            touchAction: 'none',  // Prevent browser handling of touch events
+            width: '100%',
+            maxWidth: '400px',
+            height: 'auto',
+            aspectRatio: '4/3',
+            border: '2px solid #ccc',
+            borderRadius: '8px',
+            backgroundColor: '#f9f9f9'
+          }}
         />
         
         <div className="button-container">

@@ -58,6 +58,29 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  width: 100%;
+  padding: 10px;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .practice-area {
+    padding: 5px;
+  }
+
+  .target-content {
+    font-size: clamp(18px, 5vw, 24px);
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .content {
+    display: block;
+    margin-top: 8px;
+    font-size: clamp(24px, 6vw, 32px);
+    font-weight: bold;
+  }
 }
 
 .target-content {
@@ -121,40 +144,40 @@ canvas {
 .button-container {
   display: flex;
   gap: 10px;
+  margin-top: 10px;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .button-container button {
+  flex: 1;
   min-width: 100px;
-  padding: 12px 16px;
+  max-width: 150px;
+  padding: 12px;
   font-size: 16px;
-}
-
-@media (max-width: 767px) {
-  .button-container {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    padding: 10px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    margin: 0 -15px -15px;
-  }
-}
-
-button {
-  padding: 8px 16px;
-  background-color: #2196F3;
+  border-radius: 8px;
+  background: #2196F3;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+  transition: background 0.2s;
 }
 
-button:hover {
-  background-color: #1976D2;
+.button-container button:active {
+  background: #1976D2;
+  transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .button-container button:hover {
+    background: #1976D2;
+  }
 }
 
 .exercise-controls {
@@ -202,16 +225,18 @@ button:hover {
 }
 
 .tips {
-  margin-top: 20px;
+  margin: 20px 0;
   padding: 15px;
-  background-color: #E3F2FD;
-  border-radius: 4px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .tips h3 {
-  color: #1976D2;
-  margin: 0 0 10px 0;
-  font-size: 16px;
+  font-size: clamp(16px, 4vw, 18px);
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .tips ul {
