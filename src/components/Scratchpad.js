@@ -57,9 +57,27 @@ const Scratchpad = ({ onClose }) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    
+    // Set up canvas context
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#000';
+    
+    // Add touch event listeners with passive: false
+    const options = { passive: false };
+    
+    canvas.addEventListener('touchstart', startDrawing, options);
+    canvas.addEventListener('touchmove', draw, options);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchcancel', stopDrawing);
+    
+    // Cleanup
+    return () => {
+      canvas.removeEventListener('touchstart', startDrawing);
+      canvas.removeEventListener('touchmove', draw);
+      canvas.removeEventListener('touchend', stopDrawing);
+      canvas.removeEventListener('touchcancel', stopDrawing);
+    };
   }, []);
 
   const getCurrentContent = () => EXERCISES[exerciseType].content[currentIndex];
@@ -67,14 +85,27 @@ const Scratchpad = ({ onClose }) => {
   const getCoordinates = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
     
     // Handle both mouse and touch events
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    let clientX, clientY;
     
+    if (e.touches && e.touches[0]) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches[0]) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    // Apply scaling to maintain proper drawing coordinates
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
     };
   };
 
@@ -308,29 +339,29 @@ const Scratchpad = ({ onClose }) => {
           <span className="content">{getCurrentContent()}</span>
         </div>
         
-        <canvas
-          ref={canvasRef}
-          width={400}
-          height={300}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseOut={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
-          onTouchCancel={stopDrawing}
-          style={{
-            touchAction: 'none',  // Prevent browser handling of touch events
-            width: '100%',
-            maxWidth: '400px',
-            height: 'auto',
-            aspectRatio: '4/3',
-            border: '2px solid #ccc',
-            borderRadius: '8px',
-            backgroundColor: '#f9f9f9'
-          }}
-        />
+        <div className="canvas-container">
+          <canvas
+            ref={canvasRef}
+            width={400}
+            height={300}
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseOut={stopDrawing}
+            style={{
+              touchAction: 'none',
+              width: '100%',
+              maxWidth: '400px',
+              height: 'auto',
+              aspectRatio: '4/3',
+              border: '2px solid #ccc',
+              borderRadius: '8px',
+              backgroundColor: '#f9f9f9',
+              WebkitUserSelect: 'none',
+              userSelect: 'none',
+            }}
+          />
+        </div>
         
         <div className="button-container">
           <button onClick={clearCanvas}>Clear</button>

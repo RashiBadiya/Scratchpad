@@ -96,23 +96,34 @@
   line-height: 1.4;
 }
 
-canvas {
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background: #f9f9f9;
-  cursor: crosshair;
-  touch-action: none;
+.canvas-container {
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
+  position: relative;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.canvas-container {
-  position: relative;
+.canvas-container::before {
+  content: '';
+  display: block;
+  padding-top: 75%; /* 4:3 aspect ratio */
+}
+
+.canvas-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  height: 100%;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  touch-action: none;
 }
 
 .canvas-tools {
