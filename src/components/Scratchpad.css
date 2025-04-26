@@ -1,9 +1,11 @@
 .scratchpad {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95vw;
+  max-width: 500px;
+  max-height: 95vh;
   background: white;
   padding: 15px;
   z-index: 1000;
@@ -11,6 +13,18 @@
   flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+@media (max-width: 600px) {
+  .scratchpad {
+    width: 98vw;
+    max-width: 98vw;
+    min-width: 0;
+    padding: 8px;
+    border-radius: 10px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -266,4 +280,16 @@
   font-style: italic;
   text-align: center;
   margin-top: 10px;
+}
+
+.modal-animate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 101;
 }

@@ -53,6 +53,7 @@ const Scratchpad = ({ onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [strokeData, setStrokeData] = useState([]);
   const [feedback, setFeedback] = useState('');
+  const [score, setScore] = useState(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -148,6 +149,7 @@ const Scratchpad = ({ onClose }) => {
   const checkWriting = () => {
     if (strokeData.length === 0) {
       setFeedback('❌ Please write something before checking.');
+      setScore(null);
       return;
     }
 
@@ -163,52 +165,60 @@ const Scratchpad = ({ onClose }) => {
 
     // Analyze basic writing characteristics
     const analysis = analyzeWriting(normalizedStrokes);
-    
-    // Get current content and determine exercise type
     const content = getCurrentContent().toLowerCase();
-    const pattern = LETTER_PATTERNS[content];
-    
-    // Initialize feedback messages
-    const issues = [];
-    
-    // Check size
-    if (!analysis.hasGoodSize) {
-      issues.push('Your writing size needs adjustment - not too big or too small');
-    }
-    
-    // Check spacing
-    if (!analysis.hasGoodSpacing) {
-      issues.push('Mind the spacing between strokes');
-    }
-    
-    // Check stroke count
-    if (!analysis.hasEnoughStrokes) {
-      issues.push('Use more strokes to form the shape properly');
-    }
+    let issues = [];
+    let correctness = 0;
 
-    // Pattern matching for single letters
-    if (pattern && content.length === 1) {
-      const matchesPattern = checkPatternMatch(normalizedStrokes, pattern);
-      if (!matchesPattern) {
-        issues.push('The letter shape doesn\'t match the expected pattern');
+    // For single letters, use pattern matching
+    if (exerciseType === 'letters' && LETTER_PATTERNS[content]) {
+      const resampled = getResampledStroke(normalizedStrokes, LETTER_PATTERNS[content].length);
+      const { avg, max } = getPatternDistance(resampled, LETTER_PATTERNS[content]);
+      const patternScore = Math.max(0, 1 - avg / 0.09); // Stricter average threshold
+      const maxScore = Math.max(0, 1 - max / 0.18); // Stricter max threshold
+      const sizeScore = analysis.hasGoodSize ? 1 : 0.5;
+      const spacingScore = analysis.hasGoodSpacing ? 1 : 0.5;
+      const strokeScore = analysis.hasEnoughStrokes ? 1 : 0.5;
+      // Weighted average, pattern must be strong to get high score
+      correctness = Math.round((patternScore * 0.5 + maxScore * 0.15 + sizeScore * 0.15 + spacingScore * 0.1 + strokeScore * 0.1) * 100);
+      setScore(correctness);
+
+      if (!(avg < 0.09 && max < 0.18)) {
+        issues.push("The letter shape doesn't closely match the expected pattern");
       }
-      
-      // Only mark as correct if all checks pass
-      if (matchesPattern && analysis.hasGoodSize && analysis.hasGoodSpacing && analysis.hasEnoughStrokes) {
+      if (!analysis.hasGoodSize) {
+        issues.push('Try to fill most of the box, but not too much');
+      }
+      if (!analysis.hasGoodSpacing) {
+        issues.push('Keep your strokes evenly spaced');
+      }
+      if (!analysis.hasEnoughStrokes) {
+        issues.push('Try using a few more strokes');
+      }
+      if (correctness >= 85) {
         setFeedback('✅ Excellent writing! Move on to the next exercise.');
       } else {
         setFeedback('❌ Keep practicing! ' + issues.join('. '));
       }
     } else {
-      // For words and sentences
+      // For words and sentences, use a basic scoring
       const wordLength = content.length;
-      const expectedStrokes = wordLength * 5; // Rough estimate of strokes needed
-      
+      const expectedStrokes = wordLength * 4;
+      const sizeScore = analysis.hasGoodSize ? 1 : 0.5;
+      const spacingScore = analysis.hasGoodSpacing ? 1 : 0.5;
+      const strokeScore = strokeData.length >= expectedStrokes ? 1 : 0.5;
+      correctness = Math.round((sizeScore * 0.4 + spacingScore * 0.4 + strokeScore * 0.2) * 100);
+      setScore(correctness);
+
       if (strokeData.length < expectedStrokes) {
         issues.push(`Use more strokes - aim for about ${expectedStrokes} for this word`);
       }
-      
-      if (issues.length === 0 && analysis.hasGoodSize && analysis.hasGoodSpacing) {
+      if (!analysis.hasGoodSize) {
+        issues.push('Try to fill most of the box, but not too much');
+      }
+      if (!analysis.hasGoodSpacing) {
+        issues.push('Keep your strokes evenly spaced');
+      }
+      if (correctness >= 85) {
         setFeedback('✅ Good job! Your writing looks neat.');
       } else {
         setFeedback('❌ Keep practicing! ' + issues.join('. '));
@@ -216,35 +226,62 @@ const Scratchpad = ({ onClose }) => {
     }
   };
 
-  const checkPatternMatch = (strokes, pattern) => {
-    if (strokes.length < pattern.length * 3) return false;
-
-    let matchCount = 0;
-    let lastMatchIndex = -1;
-
-    // Check each point in the pattern in sequence
-    for (const targetPoint of pattern) {
-      const [targetX, targetY] = targetPoint;
-      let matched = false;
-      
-      // Look for a matching stroke point after the last match
-      for (let i = lastMatchIndex + 1; i < strokes.length; i++) {
-        const point = strokes[i];
-        const dx = Math.abs(point.x - targetX);
-        const dy = Math.abs(point.y - targetY);
-        
-        if (dx < 0.12 && dy < 0.12) { // 12% tolerance
-          matched = true;
-          lastMatchIndex = i;
-          break;
-        }
-      }
-      
-      if (matched) matchCount++;
+  function getResampledStroke(strokes, numPoints = 32) {
+    // Resample stroke points to a fixed number for better comparison
+    if (strokes.length <= 2) return strokes;
+    const resampled = [strokes[0]];
+    let totalDist = 0;
+    for (let i = 1; i < strokes.length; i++) {
+      totalDist += Math.hypot(
+        strokes[i].x - strokes[i - 1].x,
+        strokes[i].y - strokes[i - 1].y
+      );
     }
+    const interval = totalDist / (numPoints - 1);
+    let D = 0;
+    for (let i = 1, prev = strokes[0]; i < strokes.length && resampled.length < numPoints; ) {
+      const d = Math.hypot(strokes[i].x - prev.x, strokes[i].y - prev.y);
+      if ((D + d) >= interval) {
+        const t = (interval - D) / d;
+        const nx = prev.x + t * (strokes[i].x - prev.x);
+        const ny = prev.y + t * (strokes[i].y - prev.y);
+        resampled.push({ x: nx, y: ny });
+        prev = { x: nx, y: ny };
+        D = 0;
+      } else {
+        D += d;
+        prev = strokes[i];
+        i++;
+      }
+    }
+    while (resampled.length < numPoints) resampled.push(strokes[strokes.length - 1]);
+    return resampled;
+  }
 
-    // Require 80% match and proper sequence
-    return matchCount >= pattern.length * 0.8 && lastMatchIndex > -1
+  function getPatternDistance(strokes, pattern) {
+    // Calculate average Euclidean distance between two point arrays
+    if (strokes.length !== pattern.length) return Infinity;
+    let sum = 0;
+    let maxDist = 0;
+    for (let i = 0; i < strokes.length; i++) {
+      const d = Math.hypot(strokes[i].x - pattern[i][0], strokes[i].y - pattern[i][1]);
+      sum += d;
+      if (d > maxDist) maxDist = d;
+    }
+    // Return both average and maximum distance
+    return { avg: sum / strokes.length, max: maxDist };
+  }
+
+  function isShapeSimilar(strokes, pattern, toleranceAvg = 0.09, toleranceMax = 0.18) {
+    // Stricter: require both average and max distance to be within threshold
+    const resampled = getResampledStroke(strokes, pattern.length);
+    const { avg, max } = getPatternDistance(resampled, pattern);
+    return avg < toleranceAvg && max < toleranceMax;
+  }
+
+  const checkPatternMatch = (strokes, pattern) => {
+    if (!strokes || !pattern || strokes.length < pattern.length * 0.7) return false;
+    return isShapeSimilar(strokes, pattern);
   };
 
   const analyzeWriting = (strokes) => {
@@ -301,6 +338,7 @@ const Scratchpad = ({ onClose }) => {
     clearCanvas();
     setStrokeData([]);
     setFeedback('');
+    setScore(null);
   };
 
   const changeExerciseType = (type) => {
@@ -309,6 +347,7 @@ const Scratchpad = ({ onClose }) => {
     clearCanvas();
     setStrokeData([]);
     setFeedback('');
+    setScore(null);
   };
 
   return (
@@ -338,6 +377,11 @@ const Scratchpad = ({ onClose }) => {
           Practice writing:<br/>
           <span className="content">{getCurrentContent()}</span>
         </div>
+        {score !== null && (
+          <div className="writing-score" style={{marginBottom: '8px', fontWeight: 'bold', color: score >= 85 ? '#388E3C' : '#F57C00'}}>
+            Score: {score} / 100
+          </div>
+        )}
         
         <div className="canvas-container">
           <canvas

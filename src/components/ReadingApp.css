@@ -1,14 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+body, .reading-app, .reading-container {
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+.hero-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, #e3f2fd 0%, #fce4ec 100%);
+  z-index: 0;
+  pointer-events: none;
+  min-height: 100vh;
+}
+
 .reading-app {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
+  min-height: 100vh;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .reading-container {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255,255,255,0.93);
+  padding: 40px 32px 32px 32px;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  margin-top: 48px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-title {
+  color: #1565c0;
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #5e35b1;
+  font-size: 1.15rem;
+  margin-bottom: 22px;
+  text-align: center;
+  font-weight: 500;
 }
 
 h1 {
@@ -21,12 +67,18 @@ h1 {
   line-height: 1.6;
   color: #444;
   margin-bottom: 30px;
+  background: #f3f6fa;
+  border-radius: 8px;
+  padding: 18px 14px;
+  box-shadow: 0 2px 5px rgba(21,101,192,0.04);
 }
 
 .practice-buttons {
   display: flex;
-  gap: 20px;
+  gap: 22px;
   margin-top: 30px;
+  width: 100%;
+  justify-content: center;
 }
 
 .practice-button {
@@ -34,14 +86,24 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 15px 24px;
+  padding: 18px 28px;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 18px;
-  transition: all 0.2s;
-  min-width: 200px;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(33,150,243,0.09);
+  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  min-width: 210px;
+  position: relative;
+  outline: none;
+}
+
+.practice-button span[role="img"] {
+  font-size: 1.5em;
+  margin-bottom: 5px;
+  display: block;
 }
 
 .practice-button.writing {
@@ -52,21 +114,67 @@ h1 {
   background-color: #4CAF50;
 }
 
-.practice-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.practice-button:hover, .practice-button:focus {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(21,101,192,0.12);
+  filter: brightness(1.07);
 }
 
-.practice-button.writing:hover {
+.practice-button.writing:hover, .practice-button.writing:focus {
   background-color: #1976D2;
 }
 
-.practice-button.math:hover {
+.practice-button.math:hover, .practice-button.math:focus {
   background-color: #388E3C;
 }
 
 .button-description {
   font-size: 14px;
-  margin-top: 5px;
-  opacity: 0.9;
+  margin-top: 7px;
+  opacity: 0.92;
+  color: #e3f2fd;
+  font-weight: 400;
+}
+
+/* Modal overlay and animation */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40,40,80,0.32);
+  z-index: 100;
+  animation: fadeIn 0.3s;
+}
+
+.modal-animate {
+  animation: popIn 0.32s cubic-bezier(.44,1.7,.56,1) both;
+  z-index: 101;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.90) translateY(40px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .reading-container {
+    padding: 22px 4vw 18px 4vw;
+    margin-top: 20px;
+  }
+  .main-title {
+    font-size: 2rem;
+  }
+  .practice-buttons {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .practice-button {
+    min-width: 0;
+    width: 100%;
+    font-size: 18px;
+    padding: 14px 10px;
+  }
 }

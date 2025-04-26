@@ -14,8 +14,10 @@ const ReadingApp = () => {
 
   return (
     <div className="reading-app">
+      <div className="hero-bg" />
       <div className="reading-container">
-        <h1>Reading Practice</h1>
+        <h1 className="main-title">Reading Practice</h1>
+        <p className="subtitle">Empowering kids with fun, accessible learning for Dysgraphia & Dyscalculia.</p>
         <div className="text-content">
           <p>{sampleText}</p>
         </div>
@@ -23,25 +25,28 @@ const ReadingApp = () => {
           <button 
             className="practice-button writing"
             onClick={() => setPracticeType('writing')}
+            aria-label="Practice Writing"
           >
-            Practice Writing
+            <span role="img" aria-label="pencil">✍️</span> Practice Writing
             <span className="button-description">For Dysgraphia</span>
           </button>
           <button 
             className="practice-button math"
             onClick={() => setPracticeType('math')}
+            aria-label="Practice Math"
           >
-            Practice Math
+            <span role="img" aria-label="abacus">🧮</span> Practice Math
             <span className="button-description">For Dyscalculia</span>
           </button>
         </div>
       </div>
-
+      {/* Overlay and Modal Animation */}
+      {practiceType && <div className="modal-overlay" onClick={() => setPracticeType(null)} aria-label="Close overlay" />}
       {practiceType === 'writing' && (
-        <Scratchpad onClose={() => setPracticeType(null)} />
+        <div className="modal-animate"><Scratchpad onClose={() => setPracticeType(null)} /></div>
       )}
       {practiceType === 'math' && (
-        <MathPractice onClose={() => setPracticeType(null)} />
+        <div className="modal-animate"><MathPractice onClose={() => setPracticeType(null)} /></div>
       )}
     </div>
   );
